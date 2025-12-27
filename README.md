@@ -7,7 +7,7 @@ A comprehensive New Zealand address verification and hierarchical browse service
 This service provides:
 - **Address Verification**: Validate physical addresses against 2.4M official LINZ address records
 - **Hierarchical Browse**: Navigate from Region → District → Suburb → Street with 2,320 market-friendly suburb names
-- **Geocoding**: Precise NZTM2000 coordinates for every address
+- **Geocoding**: Precise coordinates for every address (WGS84 lat/long for API, NZTM2000 for internal spatial operations)
 - **Spatial Queries**: PostGIS-powered geometry indexing and spatial operations
 - **REST API**: Clean .NET 8 Web API with Swagger documentation
 
@@ -178,7 +178,7 @@ docker exec nz-addresses bash /home/appuser/scripts/etl_simple.sh
 1. Creates staging table
 2. Loads CSV with COPY (fast bulk insert)
 3. Normalizes address fields
-4. Geocodes addresses to NZTM2000 coordinates
+4. Geocodes addresses (stores NZTM2000 for spatial queries, returns WGS84 lat/long via API)
 5. Links addresses to suburbs via spatial join
 6. Creates spatial and text indexes
 
@@ -325,8 +325,8 @@ http://localhost:8080/swagger
 
 **Spatial Indexing:**
 - GiST indexes on all geometry columns
-- NZTM2000 (EPSG:2193) for accurate NZ measurements
-- WGS84 (EPSG:4326) for web mapping
+- NZTM2000 (EPSG:2193) for internal storage and accurate NZ distance calculations
+- WGS84 (EPSG:4326) coordinates returned by API (standard lat/long)
 
 **Text Search:**
 - GIN indexes with pg_trgm for fuzzy matching
@@ -337,6 +337,24 @@ http://localhost:8080/swagger
 - `expand_abbreviations(text)` - St→Saint, Mt→Mount, etc.
 - `search_addresses(query)` - Multi-field fuzzy search
 - `geocode_address(street, suburb)` - Coordinate lookup
+
+### Coordinate Systems
+
+The service uses **two coordinate reference systems** for different purposes:
+
+**NZTM2000 (EPSG:2193)** - Internal storage:
+- Used for all geometry columns in the database (`geom` fields)
+- Optimized for accurate distance calculations in New Zealand
+- All spatial queries (nearest address, point-in-polygon) use NZTM2000
+- Measured in meters from a false origin
+
+**WGS84 (EPSG:4326)** - API responses:
+- All API endpoints return standard latitude/longitude coordinates
+- Compatible with Google Maps, OpenStreetMap, Leaflet, Mapbox, etc.
+- Stored separately in `x_coord` (longitude) and `y_coord` (latitude) columns
+- Example: `{"latitude": -36.8763, "longitude": 174.7412}`
+
+**Why both?** NZTM2000 provides centimeter-accurate measurements for NZ, while WGS84 ensures the API works with standard mapping libraries without coordinate transformation on the client side.
 
 ## Development
 
