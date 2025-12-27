@@ -15,13 +15,15 @@ log "Data directory: $DATA_DIR"
 if [ -z "$LINZ_API_KEY" ]; then
     log "ERROR: LINZ_API_KEY environment variable not set"
     log "Run: docker exec -e LINZ_API_KEY='YOUR_LINZ_API_KEY' -it nz-addresses bash /home/appuser/scripts/download_data_fast.sh"
+    log "Get your free API key from: https://data.linz.govt.nz/"
     exit 1
 fi
 
 # Check for Stats NZ API key
 if [ -z "$STATSNZ_API_KEY" ]; then
     log "ERROR: STATSNZ_API_KEY environment variable not set"
-    log "Run: docker exec -e LINZ_API_KEY='...' -e STATSNZ_API_KEY='YOUR_STATSNZ_API_KEY' -it nz-addresses bash /home/appuser/scripts/download_data_fast.sh"
+    log "Run: docker exec -e LINZ_API_KEY='YOUR_LINZ_KEY' -e STATSNZ_API_KEY='YOUR_STATSNZ_KEY' -it nz-addresses bash /home/appuser/scripts/download_data_fast.sh"
+    log "Get your free API key from: https://datafinder.stats.govt.nz/"
     exit 1
 fi
 
