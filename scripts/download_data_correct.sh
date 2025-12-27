@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+# Load configuration if available
+CONFIG_FILE="${CONFIG_FILE:-/home/appuser/config.env}"
+if [ -f "$CONFIG_FILE" ]; then
+    source "$CONFIG_FILE"
+fi
+
 log() {
     echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1"
 }
@@ -22,6 +28,8 @@ log ""
 # Check for API keys
 if [ -z "$LINZ_API_KEY" ]; then
     log "ERROR: LINZ_API_KEY environment variable not set"
+    log "Please set it in config.env or pass as environment variable"
+    log "Get your free API key from: https://data.linz.govt.nz/"
     exit 1
 fi
 

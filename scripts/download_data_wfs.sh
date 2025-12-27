@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+# Load configuration if available
+CONFIG_FILE="${CONFIG_FILE:-/home/appuser/config.env}"
+if [ -f "$CONFIG_FILE" ]; then
+    source "$CONFIG_FILE"
+fi
+
 log() {
     echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1"
 }
@@ -14,15 +20,8 @@ log "Data directory: $DATA_DIR"
 # Check for LINZ API key
 if [ -z "$LINZ_API_KEY" ]; then
     log "ERROR: LINZ_API_KEY environment variable not set"
-    log ""
-    log "To get your API key:"
-    log "1. Visit https://data.linz.govt.nz/"
-    log "2. Click 'Log in' (or create free account)"
-    log "3. Go to 'My Account' > 'API' section"
-    log "4. Copy your API key"
-    log ""
-    log "Then set it: export LINZ_API_KEY='your-key-here'"
-    log "Or pass it when running docker: docker exec -e LINZ_API_KEY='your-key' nz-addresses bash scripts/download_data_wfs.sh"
+    log "Please set it in config.env or pass as environment variable"
+    log "Get your free API key from: https://data.linz.govt.nz/"
     exit 1
 fi
 

@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+# Load configuration if available
+CONFIG_FILE="${CONFIG_FILE:-/home/appuser/config.env}"
+if [ -f "$CONFIG_FILE" ]; then
+    source "$CONFIG_FILE"
+fi
+
 log() {
     echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1"
 }
@@ -14,7 +20,7 @@ log "Data directory: $DATA_DIR"
 # Check for LINZ API key
 if [ -z "$LINZ_API_KEY" ]; then
     log "ERROR: LINZ_API_KEY environment variable not set"
-    log "Run: docker exec -e LINZ_API_KEY='YOUR_LINZ_API_KEY' -it nz-addresses bash /home/appuser/scripts/download_data_fast.sh"
+    log "Please set it in config.env or pass as environment variable"
     log "Get your free API key from: https://data.linz.govt.nz/"
     exit 1
 fi
@@ -22,7 +28,7 @@ fi
 # Check for Stats NZ API key
 if [ -z "$STATSNZ_API_KEY" ]; then
     log "ERROR: STATSNZ_API_KEY environment variable not set"
-    log "Run: docker exec -e LINZ_API_KEY='YOUR_LINZ_KEY' -e STATSNZ_API_KEY='YOUR_STATSNZ_KEY' -it nz-addresses bash /home/appuser/scripts/download_data_fast.sh"
+    log "Please set it in config.env or pass as environment variable"
     log "Get your free API key from: https://datafinder.stats.govt.nz/"
     exit 1
 fi

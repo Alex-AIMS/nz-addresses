@@ -34,8 +34,35 @@ This service provides:
 - Docker installed and running
 - ~1 GB disk space for data
 - Internet connection for initial data download
+- Free API keys from LINZ and Stats NZ (see Configuration below)
 
-### 1. Build the Docker Container
+### 1. Configure Credentials
+
+**Create your configuration file:**
+
+```bash
+cp config.env.example config.env
+```
+
+**Edit config.env and add your credentials:**
+
+```bash
+# Required: Get free API keys
+LINZ_API_KEY=your_actual_linz_api_key_here
+STATSNZ_API_KEY=your_actual_statsnz_key_here
+
+# Optional: Change database credentials (defaults work fine)
+POSTGRES_USER=nzuser
+POSTGRES_PASSWORD=nzpass
+```
+
+**Get API Keys (free):**
+- **LINZ**: https://data.linz.govt.nz/ → Sign in → My API Keys → Generate
+- **Stats NZ**: https://datafinder.stats.govt.nz/ → Sign in → My Account → API Keys
+
+⚠️ **Important**: The `config.env` file is in `.gitignore` and will NOT be committed to git.
+
+### 2. Build the Docker Container
 
 ```bash
 cd /path/to/nz-addresses
@@ -47,15 +74,21 @@ This creates a container with:
 - .NET 8 Web API
 - All required extensions and schemas
 
-### 2. Run the Container
+### 3. Run the Container
 
 ```bash
 docker run -d \
   -p 5432:5432 \
   -p 8080:8080 \
   --name nz-addresses \
+  --env-file config.env \
+  -v "$(pwd)/data:/home/appuser/data" \
   nz-addresses:latest
 ```
+
+**Key options:**
+- `--env-file config.env`: Loads your database credentials and API keys
+- `-v $(pwd)/data:/home/appuser/data`: Mounts local data directory (optional, for persistence)
 
 **Ports:**
 - `5432`: PostgreSQL database
@@ -68,7 +101,7 @@ docker logs nz-addresses
 
 You should see both PostgreSQL and the Web API starting successfully.
 
-### 3. Access the API
+### 4. Access the API
 
 - **Swagger UI**: http://localhost:8080/swagger
 - **API Base URL**: http://localhost:8080
@@ -82,36 +115,31 @@ curl http://localhost:8080/regions
 
 The database schema is automatically created when the container starts. To populate it with data, follow these steps:
 
-### Step 1: Download Geographic Boundaries
+### Step 1: Download Data Using Scripts
+
+The easiest way is to use the automated download script inside the container:
 
 ```bash
-# Create data directory
+# Download all required data (uses config.env for API keys)
+docker exec nz-addresses bash /home/appuser/scripts/download_data_fast.sh
+```
+
+**This script automatically downloads:**
+- LINZ NZ Addresses (2.4M addresses, ~761 MB)
+- LINZ Suburbs/Localities (6,562 official localities)
+- Stats NZ Regional Councils (REGC2023)
+- Stats NZ Territorial Authorities (TALB2023)
+
+**Alternative:** Download manually if you prefer:
+```bash
+# On your local machine, create data directory
 mkdir -p data
 
-# Download Stats NZ regional councils (REGC2023)
-cd data
-curl -O "https://datafinder.stats.govt.nz/layer/111189-regional-council-2023-generalised/data/"
-
-# Download territorial authorities (TALB2023)  
-curl -O "https://datafinder.stats.govt.nz/layer/111191-territorial-authority-2023-generalised/data/"
-
-# Download LINZ suburbs/localities
-curl -O "https://data.linz.govt.nz/services/query/v1/vector.json?key=YOUR_API_KEY&layer=105689"
+# Then use the download script locally (requires API keys in config.env)
+bash scripts/download_data_fast.sh
 ```
 
-*Note: You'll need a free LINZ Data Service API key from https://data.linz.govt.nz/*
-
-### Step 2: Download LINZ Addresses
-
-Download the full NZ Addresses dataset from LINZ:
-```bash
-cd data
-# Visit https://data.linz.govt.nz/layer/53353-nz-addresses/
-# Download as CSV (large file, ~761 MB)
-# Save as: nz_addresses.csv
-```
-
-### Step 3: Load Geographic Hierarchy
+### Step 2: Load Geographic Hierarchy
 
 The hierarchy loading script creates regions, districts, and suburbs with TradeMe market names:
 
@@ -139,17 +167,11 @@ Loaded 2320 suburbs
 Created 21 district aliases
 ```
 
-### Step 4: Load LINZ Addresses
+### Step 3: Load LINZ Addresses
 
 ```bash
-# Copy address CSV to container
-docker cp data/nz_addresses.csv nz-addresses:/tmp/
-
-# Copy ETL script
-docker cp scripts/etl_simple.sh nz-addresses:/tmp/
-
-# Run ETL (takes ~10-15 minutes for 2.4M addresses)
-docker exec nz-addresses bash -c "cd /tmp && bash etl_simple.sh"
+# Load addresses using the fast ETL script
+docker exec nz-addresses bash /home/appuser/scripts/etl_simple.sh
 ```
 
 **The ETL process:**
@@ -168,17 +190,14 @@ Linked 2,385,441 to suburbs (99.3%)
 Created 4 indexes
 ```
 
-### Step 5: Populate Suburb Centroids
+### Step 4: Populate Suburb Centroids
 
 Suburb centroids enable map display and distance calculations:
 
 ```bash
-# Copy centroid fetching script
-docker cp scripts/fetch_osm_centroids.sh nz-addresses:/tmp/
-
 # Fetch centroids from LINZ data and OpenStreetMap
 # This takes ~30 minutes due to OSM rate limiting (1 req/sec)
-docker exec nz-addresses bash -c "cd /tmp && bash fetch_osm_centroids.sh"
+docker exec nz-addresses bash /home/appuser/scripts/fetch_osm_centroids.sh
 ```
 
 **This script:**
@@ -191,6 +210,10 @@ docker exec nz-addresses bash -c "cd /tmp && bash fetch_osm_centroids.sh"
 **Expected results:**
 - 2,301/2,320 suburbs with centroids (99.2%)
 - 19 edge cases without centroids (sounds, hills, very small areas)
+
+---
+
+**That's it!** Your service is now fully loaded and ready to use. Visit http://localhost:8080/swagger to test the API.
 
 ## Project Structure
 
