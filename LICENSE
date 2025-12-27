@@ -1,0 +1,45 @@
+MIT License
+
+Copyright (c) 2025 NZ Addresses Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## Data Licenses
+
+This software uses data from multiple sources with different licenses:
+
+### LINZ NZ Addresses
+Source: Land Information New Zealand (LINZ)
+License: CC BY 4.0 (Creative Commons Attribution 4.0 International)
+Link: https://data.linz.govt.nz/
+
+### Stats NZ Geographic Boundaries
+Source: Stats NZ Tatauranga Aotearoa
+License: CC BY 4.0 (Creative Commons Attribution 4.0 International)
+Link: https://datafinder.stats.govt.nz/
+
+### TradeMe Locality Data
+Source: TradeMe Property Listings
+Usage: Market-friendly suburb names for improved user experience
+Note: Locality names only, no proprietary data included
+
+When using this software, you must comply with the CC BY 4.0 license terms
+for LINZ and Stats NZ data, which requires attribution when using their datasets.
