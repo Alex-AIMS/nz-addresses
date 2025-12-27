@@ -1,0 +1,123 @@
+# Data files (large CSV/GeoJSON files from LINZ/Stats NZ)
+data/
+*.csv
+*.json
+*.geojson
+*.gpkg
+*.gml
+*.shp
+*.shx
+*.dbf
+*.prj
+
+# Temporary files
+/tmp/
+*.tmp
+*.temp
+*.log
+
+# .NET Build outputs
+[Bb]in/
+[Oo]bj/
+[Pp]ublish/
+*.dll
+*.exe
+*.pdb
+
+# .NET User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Visual Studio / Rider
+.vs/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# Test results
+TestResults/
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+*.coverage
+*.coveragexml
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Docker volumes (if using docker-compose)
+.docker-data/
+postgres-data/
+
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+config.env
+*.key
+*-key.txt
+secrets/
+
+# IDE and editor files
+*.code-workspace
+*.sublime-workspace
+*.sublime-project
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Node (if any frontend tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artifacts
+dist/
+build/
+out/
+
+# Backup files
+*.bak
+*.backup
+*.old
+*~
+
+# Documentation build outputs
+_site/
+.jekyll-cache/
+
+# Misc
+*.swp
+*.swo
+.cache/
+.temp/
