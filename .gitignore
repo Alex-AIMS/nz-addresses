@@ -121,3 +121,6 @@ _site/
 *.swo
 .cache/
 .temp/
+
+# Documentation drafts and analysis
+docs/
