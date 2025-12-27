@@ -1,6 +1,14 @@
 # NZ Addresses - Address Verification & Hierarchical Browse Service
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?logo=postgresql)](https://www.postgresql.org/)
+[![PostGIS](https://img.shields.io/badge/PostGIS-3.4-green)](https://postgis.net/)
+[![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker)](https://www.docker.com/)
+
 A comprehensive New Zealand address verification and hierarchical browse service using LINZ NZ Addresses dataset, Stats NZ geographic boundaries, and TradeMe market locality data.
+
+**🎯 2.4M addresses • 16 regions • 77 districts • 2,320 suburbs • WGS84 coordinates**
 
 ## Overview
 
@@ -274,33 +282,57 @@ http://localhost:8080
 - `GET /districts/{districtId}/suburbs` - List suburbs within a district
 - `GET /suburbs/{suburbId}/streets` - List streets within a suburb
 
-#### Address Verification
+#### Address Operations
 - `GET /verify?rawAddress={address}` - Verify address exists in LINZ data
+- `GET /coordinatesForAddress?rawAddress={address}` - Get WGS84 lat/long for an address
+- `GET /addressForCoordinates?latitude={lat}&longitude={lng}` - Find nearest address to coordinates
 
-Example:
+### Quick Examples
+
+**1. Verify an address:**
 ```bash
 curl "http://localhost:8080/verify?rawAddress=14%20School%20Road,%20Auckland"
+```
+
+**2. Get coordinates for an address:**
+```bash
+curl "http://localhost:8080/coordinatesForAddress?rawAddress=1%20Queen%20Street,%20Auckland"
 ```
 
 Response:
 ```json
 {
-  "exists": true,
-  "matches": [
-    {
-      "fullAddress": "14 School Road, Morningside, Auckland 1025",
-      "suburb": "Morningside",
-      "district": "Auckland City",
-      "region": "Auckland",
-      "coordinates": {
-        "latitude": -36.8763,
-        "longitude": 174.7412,
-        "nztm_x": 1756234.5,
-        "nztm_y": 5920145.2
-      }
-    }
-  ]
+  "success": true,
+  "latitude": -36.8485,
+  "longitude": 174.7633,
+  "addressDetails": {
+    "existsInLinz": true,
+    "fullAddress": "1 Queen Street, Auckland Central, Auckland 1010",
+    "regionId": "auckland",
+    "districtId": "auckland-city",
+    "suburbId": "auckland-central"
+  }
 }
+```
+
+**3. Find address from GPS coordinates:**
+```bash
+curl "http://localhost:8080/addressForCoordinates?latitude=-36.8485&longitude=174.7633"
+```
+
+**4. Browse hierarchy:**
+```bash
+# List all regions
+curl "http://localhost:8080/regions"
+
+# Get districts in Auckland
+curl "http://localhost:8080/regions/auckland/districts"
+
+# Get suburbs in Auckland City
+curl "http://localhost:8080/districts/auckland-city/suburbs"
+
+# Get streets in Ponsonby
+curl "http://localhost:8080/suburbs/ponsonby/streets"
 ```
 
 ### Swagger UI
@@ -496,23 +528,45 @@ To refresh data (e.g., quarterly LINZ updates):
 
 Hierarchy (regions/districts/suburbs) changes rarely - only update when Stats NZ releases new boundaries.
 
-## License
-
-This software is provided as-is for research and development purposes.
-
-**Data sources are subject to their respective licenses:**
-- LINZ NZ Addresses: CC BY 4.0
-- Stats NZ geographic boundaries: CC BY 4.0
-- TradeMe locality data: Used under fair use for reference
-
 ## Contributing
 
-For issues, questions, or contributions, please contact the repository maintainer.
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+**Ways to contribute:**
+- 🐛 Report bugs or issues
+- 💡 Suggest new features
+- 📝 Improve documentation
+- 🔧 Submit pull requests
+- ⭐ Star the repository if you find it useful!
+
+## Security
+
+Found a security vulnerability? Please see [SECURITY.md](SECURITY.md) for responsible disclosure.
+
+## License
+
+This project is licensed under the **MIT License** - see [LICENSE](LICENSE) for details.
+
+**Data sources are subject to their respective licenses:**
+- LINZ NZ Addresses: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+- Stats NZ geographic boundaries: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+- TradeMe locality data: Market-friendly suburb names (reference only)
+
+## Acknowledgments
+
+- **Land Information New Zealand (LINZ)** for the comprehensive NZ Addresses dataset
+- **Stats NZ** for geographic boundary data
+- **TradeMe** for market locality naming conventions
+- **PostGIS** and **PostgreSQL** communities for excellent spatial database tools
 
 ## References
 
 - [LINZ Data Service](https://data.linz.govt.nz/)
 - [Stats NZ Geographic Boundaries](https://datafinder.stats.govt.nz/)
-- [TradeMe Property API](https://developer.trademe.co.nz/)
 - [PostGIS Documentation](https://postgis.net/documentation/)
 - [NZTM2000 Projection (EPSG:2193)](https://epsg.io/2193)
+- [WGS84 (EPSG:4326)](https://epsg.io/4326)
+
+---
+
+**Made with 🇳🇿 for the New Zealand developer community**
