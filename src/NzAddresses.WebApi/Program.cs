@@ -18,7 +18,14 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // Configure database context with NetTopologySuite
-var connectionString = builder.Configuration.GetConnectionString("Postgres");
+// Connection string supports environment variable substitution
+var connectionString = builder.Configuration.GetConnectionString("Postgres") 
+    ?? Environment.GetEnvironmentVariable("CONNECTION_STRING")
+    ?? "Host=localhost;Port=5432;Database=nz_addresses_db;Username=nzuser;Password=";
+
+// Expand environment variables in connection string
+connectionString = Environment.ExpandEnvironmentVariables(connectionString);
+
 builder.Services.AddDbContext<NzAddressesDbContext>(options =>
 {
     options.UseNpgsql(

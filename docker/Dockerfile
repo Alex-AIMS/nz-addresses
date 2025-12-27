@@ -51,7 +51,7 @@ RUN chmod -R 755 /docker-entrypoint-initdb.d/
 # Copy supervisord configuration
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Set PostgreSQL environment
+# Set PostgreSQL environment (will be overridden by config.env at runtime)
 ENV POSTGRES_USER=nzuser
 ENV POSTGRES_PASSWORD=nzpass
 ENV POSTGRES_DB=nz_addresses_db
