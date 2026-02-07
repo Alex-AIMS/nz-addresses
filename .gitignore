@@ -124,3 +124,7 @@ _site/
 
 # Documentation drafts and analysis
 docs/
+
+# AI agent context and session history
+.ai-context/
+AI/
