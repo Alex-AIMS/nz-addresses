@@ -1,0 +1,64 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+docs/
+README.md
+LICENSE
+SECURITY.md
+CONTRIBUTING.md
+
+# Build artifacts
+**/bin/
+**/obj/
+**/out/
+publish/
+
+# IDE
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.editorconfig
+
+# Test results
+**/TestResults/
+*.trx
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Database data
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# Scripts (not needed in API image)
+scripts/
+
+# Docker
+.dockerignore
+docker/Dockerfile
+docker/supervisord.conf
+docker-compose*.yml
+docker-stack*.yml
+
+# Config files
+config.env
+config.env.example
+
+# CI/CD
+.github/
+.gitlab-ci.yml
