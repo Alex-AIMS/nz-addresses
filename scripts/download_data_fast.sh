@@ -144,11 +144,11 @@ fi
 if [ "$REGIONS_FOUND" = "false" ]; then
     wget --progress=bar:force --timeout=60 --tries=10 --retry-connrefused --waitretry=1 --read-timeout=30 --continue \
         -O "$DATA_DIR/regional-councils.csv" \
-        "https://datafinder.stats.govt.nz/services;key=${STATSNZ_API_KEY}/wfs/layer-111179?service=WFS&version=2.0.0&request=GetFeature&typeNames=layer-111179&outputFormat=csv" \
+        "https://datafinder.stats.govt.nz/services;key=${STATSNZ_API_KEY}/wfs/layer-111182?service=WFS&version=2.0.0&request=GetFeature&typeNames=layer-111182&outputFormat=csv" \
         2>&1 || {
         log "⚠ WARNING: Could not download regional boundaries automatically"
         log "   Please manually download from:"
-        log "   https://datafinder.stats.govt.nz/layer/111179-regional-council-2023-clipped-generalised/"
+        log "   https://datafinder.stats.govt.nz/layer/111182-regional-council-2023-clipped-generalised/"
     }
     
     if [ -f "$DATA_DIR/regional-councils.csv" ] && [ -s "$DATA_DIR/regional-councils.csv" ]; then
