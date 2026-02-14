@@ -21,7 +21,7 @@ builder.Services.AddSwaggerGen(options =>
 // Connection string supports environment variable substitution
 var connectionString = builder.Configuration.GetConnectionString("Postgres") 
     ?? Environment.GetEnvironmentVariable("CONNECTION_STRING")
-    ?? "Host=localhost;Port=5432;Database=nz_addresses_db;Username=nzuser;Password=";
+    ?? throw new InvalidOperationException("No database connection string configured. Set ConnectionStrings:Postgres or CONNECTION_STRING environment variable.");
 
 // Expand environment variables in connection string
 connectionString = Environment.ExpandEnvironmentVariables(connectionString);
