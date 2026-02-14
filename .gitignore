@@ -74,7 +74,6 @@ postgres-data/
 .env
 .env.local
 .env.*.local
-config.env
 *.key
 *-key.txt
 secrets/
@@ -122,5 +121,9 @@ _site/
 .cache/
 .temp/
 
-# Documentation drafts and analysis
-docs/
+# Documentation build outputs
+_site/
+.jekyll-cache/
+
+# AI agent workspace
+AI/

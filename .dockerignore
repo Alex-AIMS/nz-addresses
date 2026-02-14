@@ -56,8 +56,8 @@ docker-compose*.yml
 docker-stack*.yml
 
 # Config files
-config.env
-config.env.example
+.env
+.env.*
 
 # CI/CD
 .github/
