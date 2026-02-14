@@ -699,4 +699,58 @@ public class NzAddressService : INzAddressService
             };
         }
     }
+
+    public async Task<IEnumerable<AddressAutocompleteResult>> AutocompleteAsync(string query, int limit = 10)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(query) || query.Length < 2)
+            {
+                return Enumerable.Empty<AddressAutocompleteResult>();
+            }
+
+            using var connection = new NpgsqlConnection(_connectionString);
+            
+            // Normalize the query for better matching
+            var normalizedQuery = query.Trim().ToLowerInvariant();
+            var searchPattern = $"%{normalizedQuery}%";
+
+            var sql = @"
+                SELECT 
+                    address_id AS AddressId,
+                    full_address AS FullAddress,
+                    full_road_name AS StreetName,
+                    suburb_locality AS Suburb,
+                    town_city AS City,
+                    x_coord AS X,
+                    y_coord AS Y
+                FROM nz_addresses.addresses
+                WHERE 
+                    LOWER(full_address) LIKE @SearchPattern
+                    OR LOWER(full_address_ascii) LIKE @SearchPattern
+                ORDER BY 
+                    -- Prioritize matches that start with the query
+                    CASE 
+                        WHEN LOWER(full_address) LIKE @StartsWithPattern THEN 1
+                        WHEN LOWER(full_road_name) LIKE @StartsWithPattern THEN 2
+                        ELSE 3
+                    END,
+                    full_address
+                LIMIT @Limit";
+
+            var addresses = await connection.QueryAsync<AddressAutocompleteResult>(sql, new 
+            { 
+                SearchPattern = searchPattern,
+                StartsWithPattern = $"{normalizedQuery}%",
+                Limit = limit 
+            });
+
+            return addresses;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in address autocomplete for query: {Query}", query);
+            return Enumerable.Empty<AddressAutocompleteResult>();
+        }
+    }
 }

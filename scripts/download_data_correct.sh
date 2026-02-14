@@ -21,7 +21,7 @@ log "Data directory: $DATA_DIR"
 log ""
 log "Changes from previous:"
 log "  ✓ REGC2023 (Regional Councils) instead of MCON2023 (Māori Constituencies)"
-log "  ✓ TradeMe localities for district alias mapping"
+log "  ✓ Market localities for district alias mapping"
 log "  ✓ Will create 16 geographic regions (not 22 electoral constituencies)"
 log ""
 
@@ -122,29 +122,29 @@ else
         || log "⚠ Territorial authorities download failed"
 fi
 
-# Download TradeMe localities for alias mapping
+# Download Market localities for alias mapping
 log ""
 log "========================================="
-log "5. TRADEME LOCALITIES (for aliases)"
+log "5. MARKET LOCALITIES (for aliases)"
 log "========================================="
-log "Purpose: Map our districts to TradeMe's legacy city names"
+log "Purpose: Map our districts to Market's legacy city names"
 log "Example: Albert-Eden Local Board → Auckland City"
 log ""
 
-if [ -f "$DATA_DIR/trademe_localities.json" ] && [ -s "$DATA_DIR/trademe_localities.json" ]; then
+if [ -f "$DATA_DIR/market_localities.json" ] && [ -s "$DATA_DIR/market_localities.json" ]; then
     log "✓ Already downloaded - skipping"
 else
-    log "Downloading TradeMe localities..."
-    curl -s "https://api.trademe.co.nz/v1/Localities.json" > "$DATA_DIR/trademe_localities.json"
+    log "Downloading Market localities..."
+    curl -s "https://api.market.co.nz/v1/Localities.json" > "$DATA_DIR/market_localities.json"
     
-    if [ -f "$DATA_DIR/trademe_localities.json" ] && [ -s "$DATA_DIR/trademe_localities.json" ]; then
-        log "✓ TradeMe localities downloaded successfully"
+    if [ -f "$DATA_DIR/market_localities.json" ] && [ -s "$DATA_DIR/market_localities.json" ]; then
+        log "✓ Market localities downloaded successfully"
         
-        # Show TradeMe region count for verification
-        REGION_COUNT=$(grep -o '"LocalityId":' "$DATA_DIR/trademe_localities.json" | wc -l)
-        log "   Found $REGION_COUNT TradeMe regions"
+        # Show Market region count for verification
+        REGION_COUNT=$(grep -o '"LocalityId":' "$DATA_DIR/market_localities.json" | wc -l)
+        log "   Found $REGION_COUNT Market regions"
     else
-        log "⚠ TradeMe localities download failed (optional - for alias mapping)"
+        log "⚠ Market localities download failed (optional - for alias mapping)"
     fi
 fi
 

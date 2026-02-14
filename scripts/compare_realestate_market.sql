@@ -1,4 +1,4 @@
--- Compare RealEstate.co.nz suburbs with TradeMe suburbs
+-- Compare RealEstate.co.nz suburbs with Market suburbs
 
 DROP TABLE IF EXISTS temp_realestate_suburbs;
 CREATE TEMP TABLE temp_realestate_suburbs (
@@ -25,7 +25,7 @@ SELECT
 FROM temp_realestate_suburbs
 UNION ALL
 SELECT 
-    'Total TradeMe suburbs' AS metric,
+    'Total Market suburbs' AS metric,
     COUNT(*)::TEXT AS count
 FROM nz_addresses.suburbs
 UNION ALL
@@ -45,16 +45,16 @@ LEFT JOIN nz_addresses.suburbs t
 WHERE t.name IS NULL
 UNION ALL
 SELECT 
-    'Only in TradeMe' AS metric,
+    'Only in Market' AS metric,
     COUNT(*)::TEXT AS count
 FROM nz_addresses.suburbs t
 LEFT JOIN temp_realestate_suburbs r
     ON LOWER(TRIM(r.suburb)) = LOWER(TRIM(t.name))
 WHERE r.suburb IS NULL;
 
--- Show first 30 suburbs ONLY in RealEstate.co.nz (not in TradeMe)
+-- Show first 30 suburbs ONLY in RealEstate.co.nz (not in Market)
 \echo ''
-\echo '=== Sample suburbs in RealEstate.co.nz but NOT in TradeMe ==='
+\echo '=== Sample suburbs in RealEstate.co.nz but NOT in Market ==='
 SELECT 
     r.region,
     r.district,
@@ -66,9 +66,9 @@ WHERE t.name IS NULL
 ORDER BY r.region, r.district, r.suburb
 LIMIT 30;
 
--- Show first 30 suburbs ONLY in TradeMe (not in RealEstate.co.nz)
+-- Show first 30 suburbs ONLY in Market (not in RealEstate.co.nz)
 \echo ''
-\echo '=== Sample suburbs in TradeMe but NOT in RealEstate.co.nz ==='
+\echo '=== Sample suburbs in Market but NOT in RealEstate.co.nz ==='
 SELECT 
     r.region_name,
     d.name AS district_name,

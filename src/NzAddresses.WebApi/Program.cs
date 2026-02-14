@@ -143,4 +143,16 @@ app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = Dat
 .WithDescription("API health check endpoint")
 .WithOpenApi();
 
+
+
+// GET /autocomplete?query=...&limit=10 - Autocomplete addresses
+app.MapGet("/autocomplete", async (INzAddressService service, string query, int limit = 10) =>
+{
+    var results = await service.AutocompleteAsync(query, limit);
+    return Results.Ok(results);
+})
+.WithName("AutocompleteAddresses")
+.WithDescription("Search for addresses with autocomplete functionality. Returns up to 'limit' addresses matching the query.")
+.WithOpenApi();
+
 app.Run();

@@ -67,7 +67,7 @@ CREATE TABLE nz_addresses.district_aliases (
     alias_id SERIAL PRIMARY KEY,
     district_id VARCHAR(10) REFERENCES nz_addresses.districts(district_id),
     market_name VARCHAR(200) NOT NULL,   -- e.g., "Auckland City", "Manukau City"
-    alias_type VARCHAR(50) DEFAULT 'trademe',  -- Source of alias
+    alias_type VARCHAR(50) DEFAULT 'market',  -- Source of alias
     is_primary BOOLEAN DEFAULT FALSE,     -- Primary display name
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -85,7 +85,7 @@ CREATE TABLE nz_addresses.suburbs (
     -- NEW: Major suburb flags
     is_major_suburb BOOLEAN DEFAULT FALSE,
     population_category VARCHAR(20) DEFAULT 'unknown',  -- 'major', 'medium', 'minor', 'unknown'
-    trademe_match BOOLEAN DEFAULT FALSE,  -- Found in TradeMe suburbs
+    market_match BOOLEAN DEFAULT FALSE,  -- Found in Market suburbs
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -93,7 +93,7 @@ CREATE INDEX idx_suburbs_geom ON nz_addresses.suburbs USING GIST(geom);
 CREATE INDEX idx_suburbs_district ON nz_addresses.suburbs(district_id);
 CREATE INDEX idx_suburbs_name ON nz_addresses.suburbs(name);
 CREATE INDEX idx_suburbs_major ON nz_addresses.suburbs(is_major_suburb) WHERE is_major_suburb = TRUE;
-CREATE INDEX idx_suburbs_trademe ON nz_addresses.suburbs(trademe_match) WHERE trademe_match = TRUE;
+CREATE INDEX idx_suburbs_market ON nz_addresses.suburbs(market_match) WHERE market_match = TRUE;
 
 -- Grant permissions
 GRANT SELECT ON nz_addresses.regions TO nzuser;
@@ -157,8 +157,8 @@ log ""
 log "Step 5: Creating district alias mappings..."
 
 docker exec -u postgres nz-addresses psql -d nz_addresses_db << 'EOF'
--- Manual mapping of Auckland local boards to TradeMe legacy cities
--- Based on TradeMe comparison: they use pre-2010 city names
+-- Manual mapping of Auckland local boards to Market legacy cities
+-- Based on Market comparison: they use pre-2010 city names
 
 INSERT INTO nz_addresses.district_aliases (district_id, market_name, is_primary) VALUES
 -- Auckland City (central suburbs)
@@ -215,25 +215,25 @@ EOF
 
 log "✓ District aliases created"
 
-# Flag major suburbs based on TradeMe data
+# Flag major suburbs based on Market data
 log ""
 log "Step 6: Flagging major suburbs..."
 
-if [ -f "$DATA_DIR/trademe_localities.json" ]; then
-    log "Extracting TradeMe suburb names..."
+if [ -f "$DATA_DIR/market_localities.json" ]; then
+    log "Extracting Market suburb names..."
     
-    # Extract all suburb names from TradeMe JSON
-    docker cp "$DATA_DIR/trademe_localities.json" nz-addresses:/tmp/trademe.json
+    # Extract all suburb names from Market JSON
+    docker cp "$DATA_DIR/market_localities.json" nz-addresses:/tmp/market.json
     
     docker exec -u postgres nz-addresses psql -d nz_addresses_db << 'EOF'
--- Create temp table for TradeMe suburbs
-CREATE TEMP TABLE trademe_suburbs (name TEXT);
+-- Create temp table for Market suburbs
+CREATE TEMP TABLE market_suburbs (name TEXT);
 
 -- We'll need to parse the JSON - for now, mark based on manual list
--- TradeMe has 2,320 suburbs vs our 6,562
+-- Market has 2,320 suburbs vs our 6,562
 
 -- Strategy: Mark suburbs that are likely major based on:
--- 1. Appears in TradeMe data (if we can parse JSON)
+-- 1. Appears in Market data (if we can parse JSON)
 -- 2. Has major_name populated (indicates it's a significant locality)
 -- 3. Manual list of known major suburbs
 
@@ -297,7 +297,7 @@ ORDER BY
 EOF
 
 else
-    log "⚠ TradeMe data not found - using simple flagging"
+    log "⚠ Market data not found - using simple flagging"
     
     docker exec -u postgres nz-addresses psql -d nz_addresses_db << 'EOF'
 UPDATE nz_addresses.suburbs
@@ -356,7 +356,7 @@ SELECT
     s.major_name,
     s.is_major_suburb,
     s.population_category,
-    s.trademe_match,
+    s.market_match,
     s.geom,
     0 AS street_count  -- Placeholder
 FROM nz_addresses.suburbs s;

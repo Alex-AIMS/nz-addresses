@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Fetch all realestate.co.nz suburbs from regional sitemaps
-# and compare with TradeMe suburb list in database
+# and compare with Market suburb list in database
 
 REGIONS=(
     "auckland"

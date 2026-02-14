@@ -1,0 +1,75 @@
+#!/bin/bash
+# Pre-commit hook to prevent committing sensitive data
+# Install: git config core.hooksPath .githooks
+
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+echo -e "${GREEN}Running pre-commit checks...${NC}"
+
+# Check for sensitive patterns
+SENSITIVE_PATTERNS=(
+    "password.*=.*['\"].*['\"]"
+    "api.*key.*=.*['\"][a-zA-Z0-9]{20,}['\"]"
+    "secret.*=.*['\"].*['\"]"
+    "token.*=.*['\"][a-zA-Z0-9]{20,}['\"]"
+    "POSTGRES_PASSWORD=(?!nzpass)[a-zA-Z0-9]+"
+)
+
+FOUND_SENSITIVE=0
+
+for pattern in "${SENSITIVE_PATTERNS[@]}"; do
+    if git diff --cached --diff-filter=ACM | grep -iE "$pattern" > /dev/null; then
+        echo -e "${RED}✗ Found potential sensitive data: $pattern${NC}"
+        FOUND_SENSITIVE=1
+    fi
+done
+
+# Check for large files (>10MB)
+MAX_SIZE=$((10 * 1024 * 1024)) # 10MB in bytes
+while IFS= read -r file; do
+    if [ -f "$file" ]; then
+        size=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null)
+        if [ "$size" -gt "$MAX_SIZE" ]; then
+            echo -e "${RED}✗ File too large: $file ($(numfmt --to=iec-i --suffix=B $size))${NC}"
+            echo -e "${YELLOW}  Consider adding to .gitignore or using Git LFS${NC}"
+            FOUND_SENSITIVE=1
+        fi
+    fi
+done < <(git diff --cached --name-only --diff-filter=ACM)
+
+# Check for config.env or other sensitive files
+BLOCKED_FILES=(
+    "config.env"
+    "*.key"
+    "*-key.txt"
+    ".env"
+    "*.pem"
+    "*.p12"
+    "*.pfx"
+)
+
+for pattern in "${BLOCKED_FILES[@]}"; do
+    if git diff --cached --name-only | grep -E "$pattern" > /dev/null; then
+        echo -e "${RED}✗ Attempting to commit blocked file matching: $pattern${NC}"
+        FOUND_SENSITIVE=1
+    fi
+done
+
+# Check for TODO/FIXME in critical files
+if git diff --cached --diff-filter=ACM -- "*.cs" "*.sql" | grep -E "TODO.*password|FIXME.*security" > /dev/null; then
+    echo -e "${YELLOW}⚠ Warning: Found security-related TODO/FIXME in code${NC}"
+fi
+
+if [ $FOUND_SENSITIVE -eq 1 ]; then
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${RED}✗ PRE-COMMIT CHECKS FAILED${NC}"
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${YELLOW}To bypass (not recommended): git commit --no-verify${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✓ All pre-commit checks passed!${NC}"
+exit 0
