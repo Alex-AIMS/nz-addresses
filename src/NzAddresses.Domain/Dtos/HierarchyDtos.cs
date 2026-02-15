@@ -53,3 +53,13 @@ public class CoordinatesResult
     public AddressVerificationResult? AddressDetails { get; set; }
     public string Message { get; set; } = string.Empty;
 }
+
+public class AutocompleteResult
+{
+    public long AddressId { get; set; }
+    public string FullAddress { get; set; } = string.Empty;
+    public string StreetName { get; set; } = string.Empty;
+    public string? Suburb { get; set; }
+    public string City { get; set; } = string.Empty;
+    public string? PostalCode { get; set; }
+}

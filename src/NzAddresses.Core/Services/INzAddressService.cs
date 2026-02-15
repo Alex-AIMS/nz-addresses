@@ -11,4 +11,5 @@ public interface INzAddressService
     Task<AddressVerificationResult> VerifyAsync(string rawAddress);
     Task<AddressVerificationResult> GetAddressForCoordinatesAsync(double latitude, double longitude);
     Task<CoordinatesResult> GetCoordinatesForAddressAsync(string rawAddress);
+    Task<IEnumerable<AutocompleteResult>> AutocompleteAsync(string query, int limit = 10);
 }

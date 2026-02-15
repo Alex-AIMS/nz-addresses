@@ -21,6 +21,7 @@ CREATE INDEX idx_addresses_address_number ON nz_addresses.addresses(address_numb
 -- Trigram indexes for fuzzy text matching
 CREATE INDEX idx_addresses_road_trgm ON nz_addresses.addresses USING GIN (full_road_name_ascii gin_trgm_ops);
 CREATE INDEX idx_addresses_suburb_trgm ON nz_addresses.addresses USING GIN (suburb_locality_ascii gin_trgm_ops);
+CREATE INDEX idx_addresses_full_address_trgm ON nz_addresses.addresses USING GIN (full_address_ascii gin_trgm_ops);
 
 -- Streets by suburb index
 CREATE INDEX idx_streets_suburb_id ON nz_addresses.streets_by_suburb(suburb_id);

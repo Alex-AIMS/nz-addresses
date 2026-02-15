@@ -699,4 +699,39 @@ public class NzAddressService : INzAddressService
             };
         }
     }
+
+    public async Task<IEnumerable<AutocompleteResult>> AutocompleteAsync(string query, int limit = 10)
+    {
+        if (string.IsNullOrWhiteSpace(query) || query.Length < 3)
+            return Enumerable.Empty<AutocompleteResult>();
+
+        if (limit is < 1 or > 50)
+            limit = 10;
+
+        var normalised = query.Trim();
+
+        const string sql = """
+            SELECT address_id   AS AddressId,
+                   full_address AS FullAddress,
+                   full_road_name AS StreetName,
+                   suburb_locality AS Suburb,
+                   town_city    AS City
+            FROM   nz_addresses.addresses
+            WHERE  full_address_ascii ILIKE @Pattern
+            ORDER  BY
+                   CASE WHEN full_address_ascii ILIKE @StartsWith THEN 0 ELSE 1 END,
+                   full_address_ascii
+            LIMIT  @Limit
+            """;
+
+        await using var conn = new NpgsqlConnection(_connectionString);
+        var results = await conn.QueryAsync<AutocompleteResult>(sql, new
+        {
+            Pattern = $"%{normalised}%",
+            StartsWith = $"{normalised}%",
+            Limit = limit
+        });
+
+        return results;
+    }
 }

@@ -137,6 +137,16 @@ app.MapGet("/coordinatesForAddress", async (string rawAddress, INzAddressService
 .WithDescription("Get latitude and longitude for a verified address")
 .WithOpenApi();
 
+// GET /autocomplete?query=...&limit=10 - Address autocomplete search
+app.MapGet("/autocomplete", async (string query, int? limit, INzAddressService service) =>
+{
+    var results = await service.AutocompleteAsync(query, limit ?? 10);
+    return Results.Ok(results);
+})
+.WithName("AutocompleteAddress")
+.WithDescription("Search addresses by partial text match for autocomplete suggestions")
+.WithOpenApi();
+
 // Health check endpoint
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }))
 .WithName("HealthCheck")
